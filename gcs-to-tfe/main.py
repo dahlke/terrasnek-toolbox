@@ -3,11 +3,12 @@ import os
 import hashlib
 import base64
 import time
-from terrasnek.api import TFE
+from terrasnek.api import TFC
 from google.cloud import storage
 
-TFE_TOKEN = os.environ["TFE_TOKEN"]
-TFE_ORG = os.environ["TFE_ORG"]
+TFC_TOKEN = os.environ["TFC_TOKEN"]
+TFC_ORG = os.environ["TFC_ORG"]
+GCS_BUCKET = os.environ["GCS_BUCKET"]
 
 
 if __name__ == "__main__":
@@ -17,7 +18,7 @@ if __name__ == "__main__":
         migration_targets = json.loads(f.read())
 
     # Define the bucket to search
-    bucket_name = "hc-neil"
+    bucket_name = GCS_BUCKET
 
     # Create the GCS client
     storage_client = storage.Client()
@@ -41,7 +42,7 @@ if __name__ == "__main__":
             # Loop through the migration_targets file we defined
             for mt in migration_targets:
                 # If the bucket path for this statefile matches
-                # the one we want to pull over to TFE
+                # the one we want to pull over to TFC
                 if parent_bucket_path == mt["bucket"]:
                     # Download the statefile to a local copy
                     bucket = storage_client.bucket(bucket_name)
@@ -60,14 +61,17 @@ if __name__ == "__main__":
     with open('migration-enriched.json', 'w') as f:
         json.dump(migration_targets, f, indent=4)
 
-    api = TFE(TFE_TOKEN)
-    api.set_organization(TFE_ORG)
+    api = TFC(TFC_TOKEN)
+    api.set_org(TFC_ORG)
 
-    # workspaces = api.workspaces.lst()
-    # oauth_clients = api.oauth_clients.lst()
-    # oauth_client = api.oauth_clients.lst()[0]["data"]["id"]
-    # print(oauth_clients)
-    oauth_client_id = "ot-d6BrgrjXukPhtSR2"
+    workspaces = api.workspaces.list()
+    oauth_clients = api.oauth_clients.list()["data"]
+    oauth_token_id = None
+
+    for oac in oauth_clients:
+        org_name = oac["relationships"]["organization"]["data"]["id"]
+        if org_name == TFC_ORG:
+            oauth_token_id = oac["relationships"]["oauth-tokens"]["data"][0]["id"]
 
     for mt in migration_targets:
         # Configure our create payload with the data
@@ -80,7 +84,7 @@ if __name__ == "__main__":
                     "working-directory": mt["working-dir"],
                     "vcs-repo": {
                         "identifier": mt["repo"],
-                        "oauth-token-id": oauth_client_id,
+                        "oauth-token-id": oauth_token_id,
                         "branch": mt["branch"],
                         "default-branch": True
                     }
