@@ -2,7 +2,7 @@ from terrasnek.api import TFC
 import os
 
 modules_to_purge = [
-  "terrasnek-unittest-5b81ab010f4e6810"
+  "terrasnek-unittest-d5c9b2d8c7048aa3"
 ]
 
 create_module_payload = {
@@ -45,3 +45,5 @@ if __name__ == "__main__":
         created_version = \
             api.registry_modules.create_version(\
                 module_name, module_provider, create_module_version_payload)["data"]
+
+        api.registry_modules.destroy(module_name)
