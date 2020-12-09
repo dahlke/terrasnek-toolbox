@@ -1,0 +1,13 @@
+[
+    {
+        "bucket": "hc-neil/demo-tfstates/demo-project-aws",
+        "blob-path": "hc-neil/demo-tfstates/demo-project-aws/two-tier-demo-app-aws.tfstate",
+        "statefile-name": "two-tier-demo-app-aws.tfstate",
+        "statefile-local-path": "statefiles/two-tier-demo-app-aws.tfstate",
+        "repo": "dahlke/tfe-demo",
+        "working-dir": "AWS-two-tier-tfe-demo-app/aws",
+        "workspace-name": "AWS-gcs-to-tfe-demo",
+        "branch": "master",
+        "tf-version": "0.12.1"
+    }
+]

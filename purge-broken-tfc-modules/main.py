@@ -2,7 +2,7 @@ from terrasnek.api import TFC
 import os
 
 modules_to_purge = [
-  "terrasnek-unittest-d5c9b2d8c7048aa3"
+  "terrasnek-unittest-29bfe2b6a0573863"
 ]
 
 create_module_payload = {
