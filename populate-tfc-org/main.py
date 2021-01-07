@@ -22,8 +22,6 @@ if __name__ == "__main__":
     api = TFC(TFC_TOKEN, url=TFC_URL)
     api.set_org(TFC_ORG)
 
-    existing_workspaces = api.workspaces.list()["data"]
-    existing_workspace_names = [ws["attributes"]["name"] for ws in existing_workspaces]
     oauth_clients = api.oauth_clients.list()["data"]
     oauth_token_id = None
 
@@ -32,10 +30,13 @@ if __name__ == "__main__":
         if org_name == TFC_ORG:
             oauth_token_id = oac["relationships"]["oauth-tokens"]["data"][0]["id"]
 
+    """
     for mt in mapping:
         for i in range(NUM_WORKSPACES):
             workspace_name = f"%s-%d" % (mt["workspace-name"], i)
-            if workspace_name in existing_workspace_names:
+            shown_workspace = api.workspaces.show(workspace_name=workspace_name)["data"]
+            if "id" in shown_workspace:
+                # The workspace already exists, so skip it.
                 continue
 
             # Configure our create payload with the data
@@ -95,6 +96,10 @@ if __name__ == "__main__":
 
             # Unlock the workspace so other people can use it
             api.workspaces.unlock(ws_id)
+
+    """
+
+    # TODO: add a trigger runs flag
     """
     workspaces = api.workspaces.list()["data"]
     for ws in workspaces:
@@ -117,3 +122,25 @@ if __name__ == "__main__":
         }
         api.runs.create(run_create_payload)
     """
+
+    # TODO: add a delete workspaces flag
+    current_page = 1
+    workspaces_resp = api.workspaces.list(page=current_page)
+    total_pages = workspaces_resp["meta"]["pagination"]["total-pages"]
+
+    while current_page <= total_pages:
+        workspaces_resp = api.workspaces.list(page=current_page)
+        workspaces = workspaces_resp["data"]
+
+        for ws in workspaces:
+            ws_name = ws["attributes"]["name"]
+            if "AWS-gcs-to-" in ws_name:
+                print("Deleting workspace", ws_name)
+                api.workspaces.destroy(workspace_id=ws["id"])
+        current_page += 1
+        print("current page", current_page)
+        print("total pages", total_pages)
+
+    # TODO: generate policies
+
+    # TODO: generate policy_sets
