@@ -2,11 +2,11 @@ from terrasnek.api import TFC
 import os
 import logging
 
+UNITTEST_PREFIX = "terrasnek-unittest"
+
 modules_to_purge = [
-  {
-    "name": "terrasnek-unittest-4",
-    "provider": "tfe"
-  }
+  "terrasnek-unittest-c55516d0648d968b",
+  "terrasnek-unittest-1a87426d02f9e7e3"
 ]
 
 create_module_payload = {
@@ -36,32 +36,24 @@ SSL_VERIFY = os.getenv("SSL_VERIFY", None)
 
 if __name__ == "__main__":
     api = TFC(TFC_TOKEN, url=TFC_URL, log_level=logging.DEBUG, verify=False)
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     api.set_org(TFC_ORG)
 
     listed_modules = api.registry_modules.list()["modules"]
-    print("listed modules", listed_modules)
 
     for module in listed_modules:
         module_name = module["name"]
         module_provider = module["provider"]
 
-        create_payload = create_module_payload
-        create_payload["data"]["attributes"]["name"] = module_name
+        if module_name in modules_to_purge:
+          create_payload = create_module_payload
+          create_payload["data"]["attributes"]["name"] = module_name
 
-        created_module = api.registry_modules.create(create_payload)["data"]
-        created_version = \
-            api.registry_modules.create_version(\
-                module_name, module_provider, create_module_version_payload)["data"]
-
-    for module in modules_to_purge:
-        print("module to purge", module)
-        module_name = module["name"]
-        module_provider = module["provider"]
-
-        create_payload = create_module_payload
-        create_payload["data"]["attributes"]["name"] = module_name
-
-        created_version = \
-            api.registry_modules.create_version(\
-                module_name, module_provider, create_module_version_payload)["data"]
+          print("creating module", module_name)
+          created_module = api.registry_modules.create(create_payload)["data"]
+          print("uploading module version for module", module_name)
+          created_version = \
+              api.registry_modules.create_version(\
+                  module_name, module_provider, create_module_version_payload)["data"]
+          api.registry_modules.destroy(module_name)
+          print("purging module", module_name)
