@@ -5,8 +5,6 @@ import logging
 UNITTEST_PREFIX = "terrasnek-unittest"
 
 modules_to_purge = [
-  "terrasnek-unittest-c55516d0648d968b",
-  "terrasnek-unittest-1a87426d02f9e7e3"
 ]
 
 create_module_payload = {
@@ -40,6 +38,9 @@ if __name__ == "__main__":
     api.set_org(TFC_ORG)
 
     listed_modules = api.registry_modules.list()["modules"]
+    print(listed_modules)
+    data = api.registry_modules.list()
+    print(data)
 
     for module in listed_modules:
         module_name = module["name"]
@@ -55,5 +56,14 @@ if __name__ == "__main__":
           created_version = \
               api.registry_modules.create_version(\
                   module_name, module_provider, create_module_version_payload)["data"]
-          api.registry_modules.destroy(module_name)
           print("purging module", module_name)
+          api.registry_modules.destroy(module_name)
+
+    """
+    for module_name in modules_to_purge:
+        module_name = module_name
+        module_provider = "tfe"
+
+        print("purging module", module_name)
+        api.registry_modules.destroy(module_name)
+    """
