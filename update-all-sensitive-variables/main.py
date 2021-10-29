@@ -18,14 +18,18 @@ if __name__ == "__main__":
 	# Get all the workspaces
 	all_ws = api.workspaces.list_all()["data"]
 
+	# Loop through each workspace
 	for ws in all_ws:
 		ws_id = ws["id"]
+		# List all of the variables in the workspace
 		all_vars = api.workspace_vars.list(ws["id"])["data"]
 
+		# Loop through all the variables in the workspace
 		for var in all_vars:
 			key = var["attributes"]["key"]
 			var_id = var["id"]
 
+			# If the key matches one of the values we need to update, update the variable
 			if key == "AWS_ACCESS_KEY_ID":
 				update_payload = {
 					"data": {
@@ -41,10 +45,8 @@ if __name__ == "__main__":
 						"type":"vars"
 					}
 				}
-
+				print("updating", update_payload)
 				api.workspace_vars.update(ws_id, var_id, update_payload)
-				print(var_id)
-				print(ws_id, var["attributes"]["key"])
 			elif key == "AWS_SECRET_ACCESS_KEY":
 				update_payload = {
 					"data": {
@@ -61,11 +63,3 @@ if __name__ == "__main__":
 					}
 				}
 				api.workspace_vars.update(ws_id, var_id, update_payload)
-				print(var_id)
-				print(ws_id, var["attributes"]["key"])
-
-
-
-	# Get the ID for each workspace
-
-	# Update the env vars.

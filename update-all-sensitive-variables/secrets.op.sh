@@ -8,3 +8,5 @@ export TFC_ORG="hc-se-tfe-demo-neil"
 
 export SSL_VERIFY="true"
 
+export AWS_ACCESS_KEY_ID="foo"
+export AWS_SECRET_ACCESS_KEY="bar"
