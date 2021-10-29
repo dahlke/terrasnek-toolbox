@@ -1,8 +1,4 @@
-import json
 import os
-import hashlib
-import base64
-import time
 from terrasnek.api import TFC
 
 TFC_URL = os.environ["TFC_URL"]
